@@ -1,49 +1,52 @@
-// src/pages/Cart.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import '../styles/Cart.css';
 
 const Cart = () => {
   const { cart, removeFromCart, updateCartItem, getCartTotal, clearCart } = useCart();
   const { user } = useAuth();
+  const { success, error: showError, warning } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleQuantityChange = async (productId, quantity) => {
+  const handleQuantityChange = async (productId, quantity, productName) => {
     if (quantity <= 0) {
-      handleRemove(productId);
+      handleRemove(productId, productName);
       return;
     }
     try {
       await updateCartItem(productId, quantity);
+      success(`Updated ${productName} quantity`);
     } catch (err) {
-      alert('Failed to update quantity');
+      showError('Failed to update quantity');
     }
   };
 
-  const handleRemove = async (productId) => {
+  const handleRemove = async (productId, productName) => {
     try {
       await removeFromCart(productId);
+      success(`${productName} removed from cart`);
     } catch (err) {
-      alert('Failed to remove item');
+      showError('Failed to remove item');
     }
   };
 
   const handleClearCart = async () => {
-    if (window.confirm('Are you sure you want to clear your cart?')) {
-      try {
-        await clearCart();
-      } catch (err) {
-        alert('Failed to clear cart');
-      }
+    warning('Clearing your cart...');
+    try {
+      await clearCart();
+      success('Cart cleared successfully');
+    } catch (err) {
+      showError('Failed to clear cart');
     }
   };
 
   const handleCheckout = async () => {
     if (!user) {
-      alert('Please login first');
+      showError('Please login first');
       navigate('/login');
       return;
     }
@@ -51,7 +54,7 @@ const Cart = () => {
   };
 
   const total = getCartTotal();
-  const tax = total * 0.1; // 10% tax
+  const tax = total * 0.1;
   const shipping = total > 50 ? 0 : 10;
   const grandTotal = total + tax + shipping;
 
@@ -59,10 +62,11 @@ const Cart = () => {
     return (
       <div className="cart-page empty-cart">
         <div className="empty-state">
+          <div className="empty-icon">🛒</div>
           <h2>Your Cart is Empty</h2>
-          <p>Start shopping to add items to your cart</p>
+          <p>Looks like you haven't added anything yet</p>
           <Link to="/products" className="btn btn-primary btn-lg">
-            Continue Shopping
+            Start Shopping
           </Link>
         </div>
       </div>
@@ -72,7 +76,10 @@ const Cart = () => {
   return (
     <div className="cart-page">
       <div className="cart-container">
-        <h1>Shopping Cart</h1>
+        <div className="cart-header">
+          <h1>Shopping Cart</h1>
+          <span className="cart-count">{cart.length} item{cart.length !== 1 ? 's' : ''}</span>
+        </div>
 
         <div className="cart-content">
           {/* Cart Items */}
@@ -83,6 +90,7 @@ const Cart = () => {
                   <img
                     src={item.image || 'https://via.placeholder.com/120'}
                     alt={item.name}
+                    loading="lazy"
                   />
                 </div>
 
@@ -95,7 +103,7 @@ const Cart = () => {
                 <div className="item-quantity">
                   <button
                     onClick={() =>
-                      handleQuantityChange(item._id || item.id, item.quantity - 1)
+                      handleQuantityChange(item._id || item.id, item.quantity - 1, item.name)
                     }
                     className="qty-btn"
                   >
@@ -107,7 +115,8 @@ const Cart = () => {
                     onChange={(e) =>
                       handleQuantityChange(
                         item._id || item.id,
-                        parseInt(e.target.value) || 1
+                        parseInt(e.target.value) || 1,
+                        item.name
                       )
                     }
                     min="1"
@@ -115,7 +124,7 @@ const Cart = () => {
                   />
                   <button
                     onClick={() =>
-                      handleQuantityChange(item._id || item.id, item.quantity + 1)
+                      handleQuantityChange(item._id || item.id, item.quantity + 1, item.name)
                     }
                     className="qty-btn"
                   >
@@ -128,11 +137,13 @@ const Cart = () => {
                 </div>
 
                 <button
-                  onClick={() => handleRemove(item._id || item.id)}
+                  onClick={() => handleRemove(item._id || item.id, item.name)}
                   className="btn-remove"
                   title="Remove item"
                 >
-                  ×
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                  </svg>
                 </button>
               </div>
             ))}
@@ -143,17 +154,17 @@ const Cart = () => {
             <h2>Order Summary</h2>
 
             <div className="summary-row">
-              <span>Subtotal:</span>
+              <span>Subtotal ({cart.length} items)</span>
               <span>${total.toFixed(2)}</span>
             </div>
 
             <div className="summary-row">
-              <span>Tax (10%):</span>
+              <span>Tax (10%)</span>
               <span>${tax.toFixed(2)}</span>
             </div>
 
             <div className="summary-row">
-              <span>Shipping:</span>
+              <span>Shipping</span>
               <span>
                 {shipping === 0 ? (
                   <span className="free-shipping">FREE</span>
@@ -166,14 +177,15 @@ const Cart = () => {
             <div className="summary-divider"></div>
 
             <div className="summary-row total">
-              <span>Total:</span>
+              <span>Total</span>
               <span>${grandTotal.toFixed(2)}</span>
             </div>
 
             {shipping > 0 && (
-              <p className="free-shipping-note">
-                Free shipping on orders over $50
-              </p>
+              <div className="free-shipping-notice">
+                <span className="notice-icon">💡</span>
+                Add ${(50 - total).toFixed(2)} more for free shipping!
+              </div>
             )}
 
             <button
@@ -184,16 +196,17 @@ const Cart = () => {
               Proceed to Checkout
             </button>
 
-            <button
-              onClick={handleClearCart}
-              className="btn btn-secondary btn-block"
-            >
-              Clear Cart
-            </button>
-
-            <Link to="/products" className="btn btn-tertiary btn-block">
-              Continue Shopping
-            </Link>
+            <div className="summary-actions">
+              <button
+                onClick={handleClearCart}
+                className="btn btn-secondary btn-block"
+              >
+                Clear Cart
+              </button>
+              <Link to="/products" className="btn btn-tertiary btn-block">
+                Continue Shopping
+              </Link>
+            </div>
           </div>
         </div>
       </div>
