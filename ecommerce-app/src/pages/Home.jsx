@@ -83,7 +83,7 @@ const Home = () => {
                 <div className="product-info">
                   <h3 className="product-name">{product.name}</h3>
                   <p className="product-category">{product.category}</p>
-                  <div className="product-price">${product.price.toFixed(2)}</div>
+                  <div className="product-price">₹{product.price.toFixed(2)}</div>
                   <Link
                     to={`/products/${product._id || product.id}`}
                     className="btn btn-secondary btn-sm"

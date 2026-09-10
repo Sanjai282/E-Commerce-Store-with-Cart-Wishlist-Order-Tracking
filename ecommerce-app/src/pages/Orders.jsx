@@ -100,7 +100,7 @@ const Orders = () => {
                 </div>
                 <div className="order-total">
                   <span className="total-amount">
-                    ${(order.total || 0).toFixed(2)}
+                    ₹{(order.total || 0).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -116,13 +116,13 @@ const Orders = () => {
                   <div className="detail-row">
                     <span className="detail-label">Subtotal:</span>
                     <span className="detail-value">
-                      ${(order.subtotal || 0).toFixed(2)}
+                      ₹{(order.subtotal || 0).toFixed(2)}
                     </span>
                   </div>
                   <div className="detail-row">
                     <span className="detail-label">Tax:</span>
                     <span className="detail-value">
-                      ${(order.tax || 0).toFixed(2)}
+                      ₹{(order.tax || 0).toFixed(2)}
                     </span>
                   </div>
                   <div className="detail-row">
@@ -131,7 +131,7 @@ const Orders = () => {
                       {order.shipping === 0 ? (
                         <span className="free">FREE</span>
                       ) : (
-                        `$${(order.shipping || 0).toFixed(2)}`
+                        `₹${(order.shipping || 0).toFixed(2)}`
                       )}
                     </span>
                   </div>
@@ -157,7 +157,7 @@ const Orders = () => {
                         <span className="item-name">{item.name}</span>
                         <span className="item-qty">x {item.quantity}</span>
                         <span className="item-price">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ₹{(item.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     ))}

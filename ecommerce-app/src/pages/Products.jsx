@@ -61,7 +61,7 @@ const Products = () => {
     try {
       await addToCart(productId, 1);
     } catch (err) {
-      // Silent fail
+      console.error('Failed to add product to cart:', err);
     }
   };
 
@@ -74,7 +74,7 @@ const Products = () => {
     try {
       await toggleWishlist(productId);
     } catch (err) {
-      // Silent fail
+      console.error('Failed to update wishlist:', err);
     }
   };
 
@@ -133,7 +133,7 @@ const Products = () => {
 
                     <div className="product-footer">
                       <div className="product-price">
-                        ${product.price.toFixed(2)}
+                        ₹{product.price.toFixed(2)}
                       </div>
 
                       <div className="product-actions">

@@ -333,26 +333,26 @@ const Checkout = () => {
             {cart.map((item) => (
               <div key={item._id || item.id} className="summary-item">
                 <span>{item.name} x {item.quantity}</span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                <span>₹{(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
           <div className="summary-divider"></div>
           <div className="summary-row">
             <span>Subtotal:</span>
-            <span>${total.toFixed(2)}</span>
+            <span>₹{total.toFixed(2)}</span>
           </div>
           <div className="summary-row">
             <span>Tax (10%):</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>₹{tax.toFixed(2)}</span>
           </div>
           <div className="summary-row">
             <span>Shipping:</span>
-            <span>{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                <span>{shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}</span>
           </div>
           <div className="summary-row total">
             <span>Total:</span>
-            <span>${grandTotal.toFixed(2)}</span>
+            <span>₹{grandTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

@@ -27,9 +27,8 @@ const Wishlist = () => {
   const handleAddToCart = async (productId) => {
     try {
       await addToCart(productId, 1);
-      alert('Product added to cart!');
     } catch (err) {
-      alert('Failed to add to cart');
+      console.error('Failed to add to cart:', err);
     }
   };
 
@@ -37,7 +36,7 @@ const Wishlist = () => {
     try {
       await removeFromWishlist(productId);
     } catch (err) {
-      alert('Failed to remove from wishlist');
+      console.error('Failed to remove from wishlist:', err);
     }
   };
 
@@ -76,7 +75,7 @@ const Wishlist = () => {
                   {item.description?.substring(0, 80)}...
                 </p>
 
-                <div className="item-price">${item.price.toFixed(2)}</div>
+                <div className="item-price">₹{item.price.toFixed(2)}</div>
 
                 <div className="item-actions">
                   <button

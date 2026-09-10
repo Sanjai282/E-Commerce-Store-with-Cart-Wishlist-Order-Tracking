@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { register, login, getMe } = require('../controllers/authController');
+const protect = require('../middleware/auth');
 
-router.post('/register', (req, res) => {
-  res.status(201).json({ token: 'test-token', user: { name: 'Test' } });
-});
-
-router.post('/login', (req, res) => {
-  res.status(200).json({ token: 'test-token', user: { name: 'Test' } });
-});
+router.post('/register', register);
+router.post('/login', login);
+router.get('/profile', protect, getMe);
 
 module.exports = router;

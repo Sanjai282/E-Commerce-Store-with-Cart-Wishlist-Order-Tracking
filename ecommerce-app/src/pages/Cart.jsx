@@ -19,7 +19,7 @@ const Cart = () => {
     try {
       await updateCartItem(productId, quantity);
     } catch (err) {
-      alert('Failed to update quantity');
+      console.error('Failed to update quantity:', err);
     }
   };
 
@@ -27,7 +27,7 @@ const Cart = () => {
     try {
       await removeFromCart(productId);
     } catch (err) {
-      alert('Failed to remove item');
+      console.error('Failed to remove item:', err);
     }
   };
 
@@ -36,7 +36,7 @@ const Cart = () => {
       try {
         await clearCart();
       } catch (err) {
-        alert('Failed to clear cart');
+        console.error('Failed to clear cart:', err);
       }
     }
   };
@@ -89,7 +89,7 @@ const Cart = () => {
                 <div className="item-details">
                   <h3 className="item-name">{item.name}</h3>
                   <p className="item-category">{item.category}</p>
-                  <p className="item-price">${item.price.toFixed(2)}</p>
+                  <p className="item-price">₹{item.price.toFixed(2)}</p>
                 </div>
 
                 <div className="item-quantity">
@@ -124,7 +124,7 @@ const Cart = () => {
                 </div>
 
                 <div className="item-total">
-                  ${(item.price * item.quantity).toFixed(2)}
+                  ₹{(item.price * item.quantity).toFixed(2)}
                 </div>
 
                 <button
@@ -144,12 +144,12 @@ const Cart = () => {
 
             <div className="summary-row">
               <span>Subtotal:</span>
-              <span>${total.toFixed(2)}</span>
+              <span>₹{total.toFixed(2)}</span>
             </div>
 
             <div className="summary-row">
               <span>Tax (10%):</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>₹{tax.toFixed(2)}</span>
             </div>
 
             <div className="summary-row">
@@ -158,7 +158,7 @@ const Cart = () => {
                 {shipping === 0 ? (
                   <span className="free-shipping">FREE</span>
                 ) : (
-                  `$${shipping.toFixed(2)}`
+                  `₹${shipping.toFixed(2)}`
                 )}
               </span>
             </div>
@@ -167,7 +167,7 @@ const Cart = () => {
 
             <div className="summary-row total">
               <span>Total:</span>
-              <span>${grandTotal.toFixed(2)}</span>
+              <span>₹{grandTotal.toFixed(2)}</span>
             </div>
 
             {shipping > 0 && (
