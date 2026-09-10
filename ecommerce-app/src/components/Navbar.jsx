@@ -1,20 +1,22 @@
-// src/components/Navbar.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useToast } from '../context/ToastContext';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { getCartCount } = useCart();
   const { wishlist } = useWishlist();
+  const { success } = useToast();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
+    success('Logged out successfully');
     navigate('/');
     setMenuOpen(false);
   };
@@ -47,14 +49,19 @@ const Navbar = () => {
               placeholder="Search E-Store"
               aria-label="Search products"
             />
-            <button type="button" className="search-button">Search</button>
+            <button type="button" className="search-button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </button>
           </div>
 
           <div className="navbar-auth">
             {user ? (
               <>
                 <div className="user-info">
-                  <span className="user-email">{user.email}</span>
+                  <span className="user-greeting">Hello, {user.name || user.email.split('@')[0]}</span>
                 </div>
                 <button onClick={handleLogout} className="btn btn-logout">
                   Logout
@@ -73,7 +80,7 @@ const Navbar = () => {
           </div>
 
           <button
-            className="menu-toggle"
+            className={`menu-toggle ${menuOpen ? 'active' : ''}`}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -87,7 +94,10 @@ const Navbar = () => {
       <div className="navbar-subnav">
         <div className="navbar-container subnav-container">
           <button className="menu-toggle menu-toggle-secondary" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
-            ☰ All
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="menu-icon">
+              <path d="M3 12h18M3 6h18M3 18h18"></path>
+            </svg>
+            All
           </button>
 
           <div className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
@@ -98,12 +108,14 @@ const Navbar = () => {
             {user && (
               <>
                 <Link to="/wishlist" className="nav-link with-badge" onClick={() => setMenuOpen(false)}>
-                  ❤️ Wishlist
+                  <span className="nav-icon">♡</span>
+                  Wishlist
                   {wishlist.length > 0 && <span className="badge">{wishlist.length}</span>}
                 </Link>
 
                 <Link to="/cart" className="nav-link with-badge" onClick={() => setMenuOpen(false)}>
-                  🛒 Cart
+                  <span className="nav-icon">🛒</span>
+                  Cart
                   {cartCount > 0 && <span className="badge">{cartCount}</span>}
                 </Link>
 
