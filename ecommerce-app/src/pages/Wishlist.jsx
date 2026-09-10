@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,8 +11,6 @@ const Wishlist = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { success, error: showError } = useToast();
-  const navigate = useNavigate();
-
   if (!user) {
     return (
       <div className="wishlist-page empty-state">

@@ -10,19 +10,19 @@ const Home = () => {
   const { error: showError } = useToast();
 
   useEffect(() => {
-    fetchFeaturedProducts();
-  }, []);
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await productsAPI.getAll(1, 6);
+        setFeaturedProducts(response.data.products || []);
+      } catch (err) {
+        showError('Failed to load featured products');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchFeaturedProducts = async () => {
-    try {
-      const response = await productsAPI.getAll(1, 6);
-      setFeaturedProducts(response.data.products || []);
-    } catch (err) {
-      showError('Failed to load featured products');
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchFeaturedProducts();
+  }, [showError]);
 
   return (
     <div className="home">

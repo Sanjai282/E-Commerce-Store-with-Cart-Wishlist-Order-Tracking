@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,8 +10,6 @@ const Cart = () => {
   const { user } = useAuth();
   const { success, error: showError, warning } = useToast();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
   const handleQuantityChange = async (productId, quantity, productName) => {
     if (quantity <= 0) {
       handleRemove(productId, productName);
@@ -191,7 +189,6 @@ const Cart = () => {
             <button
               onClick={handleCheckout}
               className="btn btn-primary btn-block btn-lg"
-              disabled={loading}
             >
               Proceed to Checkout
             </button>

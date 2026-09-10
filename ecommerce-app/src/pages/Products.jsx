@@ -38,30 +38,30 @@ const Products = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        let response;
+
+        if (searchTerm) {
+          response = await productsAPI.search(searchTerm);
+        } else {
+          response = await productsAPI.getAll(page, 12);
+        }
+
+        setProducts(response.data.products || []);
+        setTotalPages(response.data.totalPages || 1);
+      } catch (err) {
+        setError('Failed to load products');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProducts();
   }, [page, searchTerm]);
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      let response;
-
-      if (searchTerm) {
-        response = await productsAPI.search(searchTerm);
-      } else {
-        response = await productsAPI.getAll(page, 12);
-      }
-
-      setProducts(response.data.products || []);
-      setTotalPages(response.data.totalPages || 1);
-    } catch (err) {
-      setError('Failed to load products');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSearch = (e) => {
     e.preventDefault();

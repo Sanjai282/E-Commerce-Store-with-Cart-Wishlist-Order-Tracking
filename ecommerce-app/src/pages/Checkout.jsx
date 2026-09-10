@@ -2,13 +2,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { ordersAPI } from '../services/api';
 import '../styles/Checkout.css';
 
 const Checkout = () => {
   const { cart, getCartTotal, clearCart } = useCart();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState('shipping');
