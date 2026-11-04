@@ -8,6 +8,7 @@ import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/Navbar';
 import ScrollToTop from './components/ScrollToTop';
 import CompareModal from './components/CompareModal';
+import SanjaiChatbot from './components/SanjaiChatbot';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -44,6 +45,7 @@ function App() {
                     </Routes>
                   </main>
                   <CompareModal />
+                  <SanjaiChatbot />
 
                   <footer className="footer-india">
                   {/* Footer Features Bar */}

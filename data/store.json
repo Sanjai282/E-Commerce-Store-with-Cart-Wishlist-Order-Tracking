@@ -5,7 +5,7 @@
       "_id": "usr-001",
       "name": "Aarav Sharma",
       "email": "aarav@bharatbazaar.in",
-      "password": "$2a$10$5p8c.Fygn4t2BP0zJwtXb.irItsjReaWis4AsAIIt7oeq73Q/U5TG",
+      "password": "$2a$10$UlKr/16Va2dUA1SizVYaHeHaMvHL.Kv4DGIwAIHT95GqhWK8TmXOm",
       "phone": "+91 98765 43210",
       "city": "Mumbai",
       "state": "Maharashtra",
@@ -36,14 +36,14 @@
           "isDefault": false
         }
       ],
-      "createdAt": "2026-11-04T05:24:02.280Z"
+      "createdAt": "2026-11-04T06:01:42.412Z"
     },
     {
       "id": "usr-002",
       "_id": "usr-002",
       "name": "Priya Patel",
       "email": "priya@bharatbazaar.in",
-      "password": "$2a$10$5p8c.Fygn4t2BP0zJwtXb.irItsjReaWis4AsAIIt7oeq73Q/U5TG",
+      "password": "$2a$10$UlKr/16Va2dUA1SizVYaHeHaMvHL.Kv4DGIwAIHT95GqhWK8TmXOm",
       "phone": "+91 98234 56789",
       "city": "Bengaluru",
       "state": "Karnataka",
@@ -62,7 +62,7 @@
           "isDefault": true
         }
       ],
-      "createdAt": "2026-11-04T05:24:02.281Z"
+      "createdAt": "2026-11-04T06:01:42.413Z"
     }
   ],
   "products": [
@@ -16070,8 +16070,17 @@
   "carts": {
     "usr-001": {
       "userId": "usr-001",
-      "items": [],
-      "totalPrice": 0
+      "items": [
+        {
+          "productId": "prod-001",
+          "name": "boAt Rockerz 550 Over-Ear Wireless Headphones",
+          "price": 1999,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+          "category": "Electronics"
+        }
+      ],
+      "totalPrice": 1999
     }
   },
   "wishlists": {
@@ -16081,80 +16090,6 @@
     ]
   },
   "orders": [
-    {
-      "_id": "ORD-IN-2026-56222",
-      "id": "ORD-IN-2026-56222",
-      "orderId": "ORD-IN-2026-56222",
-      "trackingNumber": "DEL-169172465IN",
-      "courier": "DTDC Prime",
-      "deliveryOtp": "1312",
-      "deliveryAssociate": {
-        "name": "Rajesh Kumar",
-        "phone": "+91 98123 45678",
-        "vehicle": "Eco Delivery Van (MH-04-EV-2026)",
-        "rating": "4.9 ★"
-      },
-      "transitRoute": [
-        {
-          "hub": "Regional Fulfillment Center, Hub 1",
-          "status": "Completed",
-          "time": "Just now"
-        },
-        {
-          "hub": "Transit Hub to Bengaluru",
-          "status": "Processing",
-          "time": "In Progress"
-        },
-        {
-          "hub": "Destination Delivery Station, Bengaluru",
-          "status": "Pending",
-          "time": "Tomorrow morning"
-        },
-        {
-          "hub": "Out for Doorstep Delivery",
-          "status": "Pending",
-          "time": "Tomorrow by 4:00 PM"
-        }
-      ],
-      "userId": "usr-001",
-      "items": [
-        {
-          "productId": "654321098765432109876501",
-          "name": "boAt Rockerz 450 Pro Bluetooth Headphone",
-          "price": 1999,
-          "quantity": 1,
-          "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80"
-        }
-      ],
-      "subtotal": 1999,
-      "discount": 0,
-      "couponCode": null,
-      "shipping": 0,
-      "cgst": 180,
-      "sgst": 180,
-      "tax": 360,
-      "totalAmount": 2359,
-      "status": "pending",
-      "paymentMethod": "UPI (Google Pay Instant Pay)",
-      "paymentStatus": "completed",
-      "shippingAddress": {
-        "fullName": "Aarav Sharma",
-        "phone": "+91 9876543210",
-        "address": "Flat 402, Sunshine Towers",
-        "city": "Bengaluru",
-        "state": "Karnataka",
-        "pincode": "560001",
-        "addressType": "Home"
-      },
-      "timeline": [
-        {
-          "status": "confirmed",
-          "timestamp": "2026-11-04T05:37:13.657Z",
-          "description": "Order placed successfully. Payment mode: UPI (Google Pay Instant Pay)"
-        }
-      ],
-      "createdAt": "2026-11-04T05:37:13.657Z"
-    },
     {
       "_id": "ORD-IN-2026-91823",
       "id": "ORD-IN-2026-91823",
@@ -16226,21 +16161,21 @@
       "timeline": [
         {
           "status": "confirmed",
-          "timestamp": "2026-11-02T17:24:02.281Z",
+          "timestamp": "2026-11-02T18:01:42.413Z",
           "description": "Order confirmed and payment verified via UPI (Google Pay)"
         },
         {
           "status": "processing",
-          "timestamp": "2026-11-03T05:24:02.281Z",
+          "timestamp": "2026-11-03T06:01:42.413Z",
           "description": "Order packed at Bhiwandi Super Fulfillment Hub, Mumbai"
         },
         {
           "status": "shipped",
-          "timestamp": "2026-11-03T19:24:02.281Z",
+          "timestamp": "2026-11-03T20:01:42.413Z",
           "description": "Dispatched with Delhivery Express (AWB: DEL-8392019482IN)"
         }
       ],
-      "createdAt": "2026-11-02T17:24:02.281Z"
+      "createdAt": "2026-11-02T18:01:42.413Z"
     }
   ]
 }

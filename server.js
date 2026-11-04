@@ -36,6 +36,7 @@ const wishlistRoutes = require('./routes/wishlistRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const pincodeRoutes = require('./routes/pincodeRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -45,6 +46,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/pincode', pincodeRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
