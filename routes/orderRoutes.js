@@ -1,12 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const {
+  createOrder,
+  getUserOrders,
+  getOrderById,
+  updateOrderStatus,
+  cancelOrder
+} = require('../controllers/orderController');
+const verifyToken = require('../middleware/auth');
 
-router.get('/', (req, res) => {
-  res.json({ orders: [] });
-});
+router.use(verifyToken);
 
-router.post('/', (req, res) => {
-  res.status(201).json({ orderId: 'ORD-123', status: 'pending' });
-});
+router.get('/', getUserOrders);
+router.post('/', createOrder);
+router.get('/:id', getOrderById);
+router.put('/:id/status', updateOrderStatus);
+router.put('/:id/cancel', cancelOrder);
 
 module.exports = router;

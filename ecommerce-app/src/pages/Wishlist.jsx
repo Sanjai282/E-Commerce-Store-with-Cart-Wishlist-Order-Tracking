@@ -4,13 +4,17 @@ import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { formatINR, calculateSavings } from '../utils/indianUtils';
 import '../styles/Wishlist.css';
 
 const Wishlist = () => {
-  const { wishlist, removeFromWishlist } = useWishlist();
+  const { wishlist, removeFromWishlist, loading } = useWishlist();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { success, error: showError } = useToast();
+  const navigate = useNavigate();
+
+  const handleMoveToCart = async (product) => {
   if (!user) {
     return (
       <div className="wishlist-page empty-state">
@@ -26,31 +30,58 @@ const Wishlist = () => {
 
   const handleAddToCart = async (productId, productName) => {
     try {
-      await addToCart(productId, 1);
-      success(`${productName} added to cart!`);
+      const pid = product._id || product.id;
+      await addToCart(pid, 1);
+      await removeFromWishlist(pid);
+      success(`Moved ${product.name} to your Cart! 🛒`);
     } catch (err) {
-      showError('Failed to add to cart');
+      showError('Failed to move item to cart');
     }
   };
 
-  const handleRemove = async (productId, productName) => {
+  const handleRemove = async (productId, name) => {
     try {
       await removeFromWishlist(productId);
-      success(`${productName} removed from wishlist`);
+      success(`Removed ${name} from your wishlist`);
     } catch (err) {
-      showError('Failed to remove from wishlist');
+      showError('Failed to remove item');
     }
   };
+
+  if (!user) {
+    return (
+      <div className="wishlist-page empty-wishlist-view">
+        <div className="empty-wishlist-card">
+          <div className="wishlist-empty-icon">❤️</div>
+          <h2>Please Sign In</h2>
+          <p>Sign in to see your saved items and festive wishlist.</p>
+          <Link to="/login" className="btn btn-primary">
+            Sign In Now
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="wishlist-page loading-wishlist-view">
+        <p>Loading your saved items...</p>
+      </div>
+    );
+  }
 
   if (wishlist.length === 0) {
     return (
-      <div className="wishlist-page empty-state">
-        <div className="empty-icon">💝</div>
-        <h2>Your Wishlist is Empty</h2>
-        <p>Save your favorite items here for later</p>
-        <Link to="/products" className="btn btn-primary btn-lg">
-          Browse Products
-        </Link>
+      <div className="wishlist-page empty-wishlist-view">
+        <div className="empty-wishlist-card">
+          <div className="wishlist-empty-icon">🤍</div>
+          <h2>Your Wishlist is Empty</h2>
+          <p>Explore thousands of authentic Indian products and click the heart icon to save them!</p>
+          <Link to="/products" className="btn btn-primary btn-lg">
+            Explore Deals Now 🛍️
+          </Link>
+        </div>
       </div>
     );
   }
@@ -59,64 +90,68 @@ const Wishlist = () => {
     <div className="wishlist-page">
       <div className="wishlist-container">
         <div className="wishlist-header">
-          <h1>My Wishlist</h1>
-          <span className="wishlist-count">{wishlist.length} item{wishlist.length !== 1 ? 's' : ''}</span>
+          <div>
+            <h1>My Wishlist</h1>
+            <p className="wishlist-sub">
+              {wishlist.length} item{wishlist.length !== 1 ? 's' : ''} saved for later
+            </p>
+          </div>
+          <button onClick={() => navigate('/products')} className="btn btn-outline btn-sm">
+            Continue Shopping
+          </button>
         </div>
 
         <div className="wishlist-grid">
-          {wishlist.map((item) => (
-            <div key={item._id || item.id} className="wishlist-card">
-              <div className="card-image">
-                <img
-                  src={item.image || 'https://via.placeholder.com/250'}
-                  alt={item.name}
-                  loading="lazy"
-                />
-                <button
-                  className="remove-btn"
-                  onClick={() => handleRemove(item._id || item.id, item.name)}
-                  title="Remove from wishlist"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 6L6 18M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
+          {wishlist.map((product) => {
+            const pid = product._id || product.id;
+            const { amount: savings, percent } = calculateSavings(product.mrp, product.price);
 
-              <div className="card-content">
-                <span className="item-category">{item.category}</span>
-                <h3 className="item-name">{item.name}</h3>
+            return (
+              <div key={pid} className="wishlist-card">
+                <div className="wishlist-card-media">
+                  <img src={product.image} alt={product.name} />
+                  <button
+                    type="button"
+                    className="btn-wishlist-remove-icon"
+                    onClick={() => handleRemove(pid, product.name)}
+                    title="Remove from wishlist"
+                  >
+                    ✕
+                  </button>
+                  <span className="origin-pill">Made in India 🇮🇳</span>
+                </div>
 
-                <p className="item-description">
-                  {item.description?.substring(0, 80)}...
-                </p>
+                <div className="wishlist-card-content">
+                  <span className="card-cat">{product.category}</span>
+                  <h3 className="card-name" title={product.name}>
+                    {product.name}
+                  </h3>
 
+                  <div className="card-prices-line">
+                    <span className="deal-price">{formatINR(product.price)}</span>
+                    {product.mrp && product.mrp > product.price && (
+                      <span className="mrp-price">{formatINR(product.mrp)}</span>
+                    )}
+                  </div>
+
+                  {savings > 0 && (
+                    <div className="card-savings-text">Save {formatINR(savings)} ({percent}% OFF)</div>
+                  )}
+
+                  <div className="in-stock-label">✔ In Stock &amp; Ready to Ship</div>
                 <div className="item-price">₹{item.price.toFixed(2)}</div>
 
-                <div className="item-actions">
                   <button
-                    onClick={() => handleAddToCart(item._id || item.id, item.name)}
-                    className="btn btn-primary btn-sm"
+                    type="button"
+                    onClick={() => handleMoveToCart(product)}
+                    className="btn btn-primary btn-move-cart"
                   >
-                    Add to Cart
+                    Move to Cart 🛒
                   </button>
-
-                  <Link
-                    to={`/products/${item._id || item.id}`}
-                    className="btn btn-secondary btn-sm"
-                  >
-                    View Details
-                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="wishlist-footer">
-          <Link to="/products" className="btn btn-tertiary">
-            Continue Shopping
-          </Link>
+            );
+          })}
         </div>
       </div>
     </div>

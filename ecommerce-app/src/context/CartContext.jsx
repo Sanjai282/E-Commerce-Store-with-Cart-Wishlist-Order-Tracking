@@ -1,5 +1,5 @@
 // src/context/CartContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { cartAPI } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -11,19 +11,27 @@ export const CartProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const { user } = useAuth();
 
-  // Fetch cart when user logs in
-  useEffect(() => {
-    if (user) {
-      fetchCart();
-    } else {
-      setCart([]);
-    }
-  }, [user]);
-
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       const response = await cartAPI.getCart();
+      const items = response.data.items || response.data.cart?.items || [];
+      // Normalize item structure
+      const normalized = items.map((item) => {
+        const product = item.productId && typeof item.productId === 'object' ? item.productId : {};
+        return {
+          id: product._id || product.id || item.productId || item._id,
+          productId: product._id || product.id || item.productId,
+          name: item.name || product.name || 'Product',
+          price: item.price || product.price || 0,
+          mrp: item.mrp || product.mrp || item.price * 1.5,
+          image: item.image || product.image || 'https://via.placeholder.com/150',
+          category: item.category || product.category || 'General',
+          quantity: item.quantity || 1,
+          hsnCode: item.hsnCode || product.hsnCode || '85183000'
+        };
+      });
+      setCart(normalized);
       setCart(response.data.items || response.data.cart?.items || []);
       setError(null);
     } catch (err) {
@@ -32,11 +40,21 @@ export const CartProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchCart();
+    } else {
+      setCart([]);
+    }
+  }, [user, fetchCart]);
 
   const addToCart = async (productId, quantity = 1) => {
     try {
       setError(null);
+      await cartAPI.addToCart(productId, quantity);
+      await fetchCart();
       const response = await cartAPI.addToCart(productId, quantity);
       setCart(response.data.items || response.data.cart?.items || []);
       return response.data;
@@ -50,9 +68,8 @@ export const CartProvider = ({ children }) => {
   const updateCartItem = async (productId, quantity) => {
     try {
       setError(null);
-      const response = await cartAPI.updateCart(productId, quantity);
-      setCart(response.data.items || []);
-      return response.data;
+      await cartAPI.updateCart(productId, quantity);
+      await fetchCart();
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to update cart';
       setError(message);
@@ -63,9 +80,8 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (productId) => {
     try {
       setError(null);
-      const response = await cartAPI.removeFromCart(productId);
-      setCart(response.data.items || []);
-      return response.data;
+      await cartAPI.removeFromCart(productId);
+      await fetchCart();
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to remove item';
       setError(message);
@@ -86,11 +102,18 @@ export const CartProvider = ({ children }) => {
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cart.reduce((total, item) => total + (item.price || 0) * (item.quantity || 1), 0);
+  };
+
+  const getCartMRP = () => {
+    return cart.reduce((total, item) => {
+      const mrp = item.mrp || item.price * 1.4;
+      return total + mrp * (item.quantity || 1);
+    }, 0);
   };
 
   const getCartCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0);
+    return cart.reduce((count, item) => count + (item.quantity || 1), 0);
   };
 
   return (
@@ -104,8 +127,9 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         getCartTotal,
+        getCartMRP,
         getCartCount,
-        fetchCart,
+        fetchCart
       }}
     >
       {children}

@@ -1,140 +1,189 @@
-// src/pages/Register.jsx
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { INDIAN_STATES } from '../utils/indianUtils';
+import { pincodeAPI } from '../services/api';
 import '../styles/Auth.css';
 
 const Register = () => {
-  const navigate = useNavigate();
-  const { register, error } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    phone: '',
+    pincode: '',
+    city: '',
+    state: 'Maharashtra'
   });
-  const [localError, setLocalError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+
+  const { register } = useAuth();
+  const { success, error: showError, info } = useToast();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setLocalError('');
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePincodeChange = async (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setFormData((prev) => ({ ...prev, pincode: val }));
+
+    if (val.length === 6) {
+      try {
+        setPincodeLoading(true);
+        const res = await pincodeAPI.lookup(val);
+        if (res.data) {
+          setFormData((prev) => ({
+            ...prev,
+            city: res.data.city || prev.city,
+            state: res.data.state || prev.state
+          }));
+          info(`Auto-detected: ${res.data.city}, ${res.data.state}`);
+        }
+      } catch (err) {}
+      finally {
+        setPincodeLoading(false);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setLocalError('Please fill in all fields');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setLocalError('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setLocalError('Password must be at least 6 characters');
+    if (!formData.name || !formData.email || !formData.password) {
+      showError('Please fill in all required fields');
       return;
     }
 
     try {
       setLoading(true);
       await register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
+        ...formData,
+        phone: formData.phone ? `+91 ${formData.phone.replace(/\D/g, '')}` : '+91 98765 43210'
       });
-      navigate('/products');
+      success('Account created successfully! Welcome to BharatBazaar.');
+      navigate('/');
     } catch (err) {
-      setLocalError(err.response?.data?.message || 'Registration failed');
+      showError(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h1 className="auth-title">Create Account</h1>
-        <p className="auth-subtitle">Join E-Store today</p>
+    <div className="auth-page-container">
+      <div className="auth-card register-wide-card">
+        <div className="auth-card-header">
+          <span className="auth-flag">🇮🇳</span>
+          <h2>Create Your BharatBazaar Account</h2>
+          <p>Join millions of Indian shoppers enjoying festive offers and doorstep delivery</p>
+        </div>
 
-        {error && <div className="error-message">{error}</div>}
-        {localError && <div className="error-message">{localError}</div>}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+        <form onSubmit={handleSubmit} className="auth-form-body">
+          <div className="form-group-auth">
+            <label>Full Name *</label>
             <input
               type="text"
-              id="name"
               name="name"
+              placeholder="e.g. Aarav Sharma"
               value={formData.name}
               onChange={handleChange}
-              placeholder="John Doe"
               required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-            />
+          <div className="form-row-auth">
+            <div className="form-group-auth flex-1">
+              <label>Email Address *</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="aarav@example.in"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group-auth flex-1">
+              <label>10-Digit Mobile (+91)</label>
+              <div className="phone-prefix-field">
+                <span className="prefix">+91</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  maxLength="10"
+                  placeholder="98765 43210"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
+          <div className="form-group-auth">
+            <label>Create Password *</label>
             <input
               type="password"
-              id="password"
               name="password"
+              placeholder="Minimum 6 characters"
               value={formData.password}
               onChange={handleChange}
-              placeholder="At least 6 characters"
               required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm your password"
-              required
-            />
+          <div className="form-row-auth">
+            <div className="form-group-auth flex-1">
+              <label>6-Digit PIN Code {pincodeLoading && <small>(Looking up...)</small>}</label>
+              <input
+                type="text"
+                name="pincode"
+                maxLength="6"
+                placeholder="e.g. 400001"
+                value={formData.pincode}
+                onChange={handlePincodeChange}
+              />
+            </div>
+            <div className="form-group-auth flex-1">
+              <label>City</label>
+              <input
+                type="text"
+                name="city"
+                placeholder="e.g. Mumbai"
+                value={formData.city}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group-auth flex-1">
+              <label>State</label>
+              <select
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                className="select-auth"
+              >
+                {INDIAN_STATES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Create Account'}
+          <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Register for BharatBazaar →'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          Already have an account?{' '}
-          <Link to="/login" className="auth-link">
-            Sign in here
-          </Link>
-        </p>
+        <div className="auth-footer-prompt">
+          <p>
+            Already have an account? <Link to="/login">Sign In Here</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
