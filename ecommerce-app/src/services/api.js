@@ -23,23 +23,31 @@ api.interceptors.request.use(
 export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   login: (credentials) => api.post('/auth/login', credentials),
+  demoLogin: (email) => api.post('/auth/demo-login', { email }),
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
   getProfile: () => api.get('/auth/profile'),
+  getAddresses: () => api.get('/auth/addresses'),
+  addAddress: (addressData) => api.post('/auth/addresses', addressData),
 };
 
 export const productsAPI = {
-  getAll: (page = 1, limit = 12) => api.get(`/products?page=${page}&limit=${limit}`),
+  getAll: (page = 1, limit = 12, params = {}) => {
+    const query = new URLSearchParams({ page, limit, ...params }).toString();
+    return api.get(`/products?${query}`);
+  },
   getById: (id) => api.get(`/products/${id}`),
-  search: (query) => api.get(`/products/search?q=${query}`),
-  getByCategory: (category) => api.get(`/products/category/${category}`),
+  search: (query) => api.get(`/products/search?q=${encodeURIComponent(query)}`),
+  getByCategory: (category) => api.get(`/products/category/${encodeURIComponent(category)}`),
+  getReviews: (id) => api.get(`/products/${id}/reviews`),
+  addReview: (id, reviewData) => api.post(`/products/${id}/reviews`, reviewData),
 };
 
 export const cartAPI = {
   getCart: () => api.get('/cart'),
-  addToCart: (productId, quantity) => api.post('/cart', { productId, quantity }),
+  addToCart: (productId, quantity = 1) => api.post('/cart', { productId, quantity }),
   updateCart: (productId, quantity) => api.put(`/cart/${productId}`, { quantity }),
   removeFromCart: (productId) => api.delete(`/cart/${productId}`),
   clearCart: () => api.delete('/cart'),
@@ -48,7 +56,9 @@ export const cartAPI = {
 export const wishlistAPI = {
   getWishlist: () => api.get('/wishlist'),
   addToWishlist: (productId) => api.post('/wishlist', { productId }),
+  toggleWishlist: (productId) => api.post('/wishlist/toggle', { productId }),
   removeFromWishlist: (productId) => api.delete(`/wishlist/${productId}`),
+  checkWishlist: (productId) => api.get(`/wishlist/check/${productId}`),
 };
 
 export const ordersAPI = {
@@ -56,9 +66,16 @@ export const ordersAPI = {
   getOrderById: (id) => api.get(`/orders/${id}`),
   createOrder: (orderData) => api.post('/orders', orderData),
   cancelOrder: (id) => api.put(`/orders/${id}/cancel`),
+  updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
 };
-export const paymentAPI = {
-  processPayment: (paymentData) => api.post('/payment/process', paymentData),
+
+export const couponsAPI = {
+  getAll: () => api.get('/coupons'),
+  validate: (code, subtotal) => api.post('/coupons/validate', { code, subtotal }),
+};
+
+export const pincodeAPI = {
+  lookup: (code) => api.get(`/pincode/${code}`),
 };
 
 export default api;

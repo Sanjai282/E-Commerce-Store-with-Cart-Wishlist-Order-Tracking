@@ -1,0 +1,9 @@
+node_modules
+ecommerce-app/node_modules
+ecommerce-app/build
+.env
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

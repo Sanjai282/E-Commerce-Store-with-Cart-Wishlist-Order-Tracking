@@ -1,98 +1,126 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import '../styles/Auth.css';
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { login, error } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [localError, setLocalError] = useState('');
+  const [demoLoading, setDemoLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setLocalError('');
-  };
+  const { login, demoLogin } = useAuth();
+  const { success, error: showError } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.email || !formData.password) {
-      setLocalError('Please fill in all fields');
+    if (!email || !password) {
+      showError('Please enter both email and password');
       return;
     }
-
     try {
       setLoading(true);
-      await login(formData);
-      navigate('/products');
+      await login({ email, password });
+      success('Welcome back to BharatBazaar!');
+      navigate('/');
     } catch (err) {
-      setLocalError(err.response?.data?.message || 'Login failed');
+      showError(err.response?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDemo = async (demoEmail, name) => {
+    try {
+      setDemoLoading(true);
+      await demoLogin(demoEmail);
+      success(`Logged in as ${name}!`);
+      navigate('/');
+    } catch (err) {
+      showError('Demo login failed');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   return (
-    <div className="auth-container">
+    <div className="auth-page-container">
       <div className="auth-card">
-        <h1 className="auth-title">Welcome Back</h1>
-        <p className="auth-subtitle">Sign in to your account</p>
+        <div className="auth-card-header">
+          <span className="auth-flag">🇮🇳</span>
+          <h2>Welcome Back</h2>
+          <p>Sign in to track orders, manage your cart &amp; claim festival coupons</p>
+        </div>
 
-        {error && <div className="error-message">{error}</div>}
-        {localError && <div className="error-message">{localError}</div>}
+        {/* 1-Click Demo Login Box */}
+        <div className="demo-accounts-box">
+          <span className="demo-box-badge">⚡ Instant 1-Click Testing</span>
+          <p>Try the store instantly with pre-loaded demo Indian accounts:</p>
+          <div className="demo-btns-col">
+            <button
+              type="button"
+              disabled={demoLoading}
+              onClick={() => handleDemo('aarav@bharatbazaar.in', 'Aarav Sharma (Mumbai)')}
+              className="btn-demo-quick"
+            >
+              👤 Sign in as Aarav Sharma (Mumbai • 400001)
+            </button>
+            <button
+              type="button"
+              disabled={demoLoading}
+              onClick={() => handleDemo('priya@bharatbazaar.in', 'Priya Patel (Bengaluru)')}
+              className="btn-demo-quick"
+            >
+              👤 Sign in as Priya Patel (Bengaluru • 560001)
+            </button>
+          </div>
+        </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
+        <div className="auth-divider-line">
+          <span>OR SIGN IN WITH EMAIL</span>
+        </div>
+
+        <form onSubmit={handleSubmit} className="auth-form-body">
+          <div className="form-group-auth">
+            <label>Email Address</label>
             <input
               type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
+              placeholder="e.g. yourname@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
+          <div className="form-group-auth">
+            <div className="label-with-link">
+              <label>Password</label>
+              <span className="forgot-pass">Forgot Password?</span>
+            </div>
             <input
               type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
+          <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
+            {loading ? 'Signing In...' : 'Sign In to BharatBazaar →'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          Don't have an account?{' '}
-          <Link to="/register" className="auth-link">
-            Create one here
-          </Link>
-        </p>
+        <div className="auth-footer-prompt">
+          <p>
+            New to BharatBazaar? <Link to="/register">Create an Account</Link>
+          </p>
+          <div className="security-assure">
+            <span>🔒 256-Bit SSL Secured • RBI Compliant</span>
+          </div>
+        </div>
       </div>
     </div>
   );

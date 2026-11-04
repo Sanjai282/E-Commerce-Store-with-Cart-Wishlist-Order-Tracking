@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "server.js",
+    "controllers",
+    "routes",
+    "models",
+    "middleware"
+  ],
+  "ignore": [
+    "data/store.json",
+    "ecommerce-app",
+    "node_modules"
+  ],
+  "ext": "js,json"
+}
