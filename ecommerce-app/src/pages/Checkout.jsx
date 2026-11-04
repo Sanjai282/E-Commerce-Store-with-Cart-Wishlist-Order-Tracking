@@ -12,6 +12,11 @@ const Checkout = () => {
   const { cart, getCartTotal, getCartMRP, clearCart } = useCart();
   const { user, deliveryPincode, deliveryCity } = useAuth();
   const { success, error: showError, info } = useToast();
+import { ordersAPI } from '../services/api';
+import '../styles/Checkout.css';
+
+const Checkout = () => {
+  const { cart, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
 
   const [currentStep, setCurrentStep] = useState('shipping'); // 'shipping' | 'payment' | 'review' | 'success'
@@ -1175,6 +1180,35 @@ const Checkout = () => {
         {showInvoiceModal && placedOrder && (
           <InvoiceModal order={placedOrder} onClose={() => setShowInvoiceModal(false)} />
         )}
+        {/* Order Summary */}
+        <div className="checkout-summary">
+          <h3>Order Summary</h3>
+          <div className="summary-items">
+            {cart.map((item) => (
+              <div key={item._id || item.id} className="summary-item">
+                <span>{item.name} x {item.quantity}</span>
+                <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+          <div className="summary-divider"></div>
+          <div className="summary-row">
+            <span>Subtotal:</span>
+            <span>₹{total.toFixed(2)}</span>
+          </div>
+          <div className="summary-row">
+            <span>Tax (10%):</span>
+            <span>₹{tax.toFixed(2)}</span>
+          </div>
+          <div className="summary-row">
+            <span>Shipping:</span>
+                <span>{shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}</span>
+          </div>
+          <div className="summary-row total">
+            <span>Total:</span>
+            <span>₹{grandTotal.toFixed(2)}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

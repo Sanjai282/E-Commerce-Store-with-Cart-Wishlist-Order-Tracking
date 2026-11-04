@@ -200,6 +200,31 @@ const Products = () => {
     next.set('page', '1');
     setSearchParams(next);
   };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        let response;
+
+        if (searchTerm) {
+          response = await productsAPI.search(searchTerm);
+        } else {
+          response = await productsAPI.getAll(page, 12);
+        }
+
+        setProducts(response.data.products || []);
+        setTotalPages(response.data.totalPages || 1);
+      } catch (err) {
+        setError('Failed to load products');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [page, searchTerm]);
 
   const handleApplyCustomPrice = (e) => {
     e.preventDefault();
@@ -734,6 +759,9 @@ const Products = () => {
                           <span className="reviews-cnt">({product.reviewsCount || 120})</span>
                         </div>
                         <span className="brand-badge-pill">{product.brand || 'BharatBazaar'}</span>
+                    <div className="product-footer">
+                      <div className="product-price">
+                        ₹{product.price.toFixed(2)}
                       </div>
 
                       {/* Pricing */}

@@ -24,7 +24,7 @@ export const WishlistProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await wishlistAPI.getWishlist();
-      setWishlist(response.data.items || []);
+      setWishlist(response.data.items || response.data.wishlist?.products || []);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch wishlist:', err);
@@ -38,7 +38,7 @@ export const WishlistProvider = ({ children }) => {
     try {
       setError(null);
       const response = await wishlistAPI.addToWishlist(productId);
-      setWishlist(response.data.items || []);
+      setWishlist(response.data.items || response.data.wishlist?.products || []);
       return response.data;
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to add to wishlist';

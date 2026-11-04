@@ -32,6 +32,7 @@ export const CartProvider = ({ children }) => {
         };
       });
       setCart(normalized);
+      setCart(response.data.items || response.data.cart?.items || []);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch cart:', err);
@@ -54,6 +55,9 @@ export const CartProvider = ({ children }) => {
       setError(null);
       await cartAPI.addToCart(productId, quantity);
       await fetchCart();
+      const response = await cartAPI.addToCart(productId, quantity);
+      setCart(response.data.items || response.data.cart?.items || []);
+      return response.data;
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to add to cart';
       setError(message);

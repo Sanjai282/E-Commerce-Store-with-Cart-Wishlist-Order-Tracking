@@ -132,6 +132,20 @@ const Home = () => {
       showError('Failed to update wishlist');
     }
   };
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await productsAPI.getAll(1, 6);
+        setFeaturedProducts(response.data.products || []);
+      } catch (err) {
+        showError('Failed to load featured products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, [showError]);
 
   return (
     <div className="home-page">
@@ -232,6 +246,30 @@ const Home = () => {
                 <span className="cat-emoji">{cat.icon}</span>
                 <h3 className="cat-tile-title">{cat.title}</h3>
                 <p className="cat-tile-sub">{cat.subtitle}</p>
+            ))}
+          </div>
+        ) : featuredProducts.length > 0 ? (
+          <div className="products-grid">
+            {featuredProducts.map((product) => (
+              <div key={product._id || product.id} className="product-card">
+                <div className="product-image">
+                  <img
+                    src={product.image || 'https://via.placeholder.com/200'}
+                    alt={product.name}
+                    loading="lazy"
+                  />
+                </div>
+                <div className="product-info">
+                  <span className="product-category">{product.category}</span>
+                  <h3 className="product-name">{product.name}</h3>
+                  <div className="product-price">₹{product.price.toFixed(2)}</div>
+                  <Link
+                    to={`/products/${product._id || product.id}`}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
             </Link>
           ))}

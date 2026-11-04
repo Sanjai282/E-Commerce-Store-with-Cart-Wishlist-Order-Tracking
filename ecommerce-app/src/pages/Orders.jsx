@@ -155,6 +155,30 @@ const Orders = () => {
               vehicle: 'Electric Delivery Van (MH-04-EV-2026)',
               rating: '4.9 ★ (1,840 deliveries)'
             };
+      <div className="orders-container">
+        <h1>My Orders</h1>
+
+        <div className="orders-list">
+          {orders.map((order) => (
+            <div key={order._id || order.id} className="order-card">
+              <div className="order-header">
+                <div className="order-info">
+                  <h3>Order #{(order._id || order.id).substring(0, 8).toUpperCase()}</h3>
+                  <p className="order-date">
+                    {new Date(order.createdAt || order.date).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="order-status">
+                  <span className={`status-badge status-${(order.status || 'pending').toLowerCase()}`}>
+                    {order.status || 'Pending'}
+                  </span>
+                </div>
+                <div className="order-total">
+                  <span className="total-amount">
+                    ₹{(order.total || 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
 
             const transitRoute = order.transitRoute || [
               { hub: 'Bhiwandi Super Fulfillment Center, Mumbai', status: 'Completed', time: 'Yesterday, 10:30 AM' },
@@ -215,6 +239,26 @@ const Orders = () => {
                   <div className="awb-badge">
                     <span>
                       AWB Tracking: <strong>{order.trackingNumber || 'DEL-9281928IN'}</strong>
+                  <div className="detail-row">
+                    <span className="detail-label">Subtotal:</span>
+                    <span className="detail-value">
+                      ₹{(order.subtotal || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Tax:</span>
+                    <span className="detail-value">
+                      ₹{(order.tax || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Shipping:</span>
+                    <span className="detail-value">
+                      {order.shipping === 0 ? (
+                        <span className="free">FREE</span>
+                      ) : (
+                        `₹${(order.shipping || 0).toFixed(2)}`
+                      )}
                     </span>
                   </div>
 
@@ -277,6 +321,17 @@ const Orders = () => {
                         </div>
                         <span className="partner-service">
                           {order.courier || 'Delhivery Express'} • {orderAssociate.vehicle}
+              {/* Expanded Details */}
+              {expandedOrder === (order._id || order.id) && (
+                <div className="order-expanded">
+                  <div className="items-list">
+                    <h4>Items:</h4>
+                    {order.items?.map((item, index) => (
+                      <div key={index} className="item-row">
+                        <span className="item-name">{item.name}</span>
+                        <span className="item-qty">x {item.quantity}</span>
+                        <span className="item-price">
+                          ₹{(item.price * item.quantity).toFixed(2)}
                         </span>
                         <span className="partner-rating">{orderAssociate.rating}</span>
                       </div>

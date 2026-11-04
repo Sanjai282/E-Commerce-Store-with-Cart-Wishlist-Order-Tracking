@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -15,6 +15,20 @@ const Wishlist = () => {
   const navigate = useNavigate();
 
   const handleMoveToCart = async (product) => {
+  if (!user) {
+    return (
+      <div className="wishlist-page empty-state">
+        <div className="empty-icon">🔐</div>
+        <h2>Please Login</h2>
+        <p>You need to be logged in to view your wishlist</p>
+        <Link to="/login" className="btn btn-primary">
+          Go to Login
+        </Link>
+      </div>
+    );
+  }
+
+  const handleAddToCart = async (productId, productName) => {
     try {
       const pid = product._id || product.id;
       await addToCart(pid, 1);
@@ -125,6 +139,7 @@ const Wishlist = () => {
                   )}
 
                   <div className="in-stock-label">✔ In Stock &amp; Ready to Ship</div>
+                <div className="item-price">₹{item.price.toFixed(2)}</div>
 
                   <button
                     type="button"

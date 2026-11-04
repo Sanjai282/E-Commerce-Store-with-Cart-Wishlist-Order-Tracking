@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -60,6 +60,9 @@ const Cart = () => {
     const code = (codeToApply || couponCode).trim().toUpperCase();
     if (!code) {
       setCouponError('Please enter a coupon code');
+  const handleQuantityChange = async (productId, quantity, productName) => {
+    if (quantity <= 0) {
+      handleRemove(productId, productName);
       return;
     }
 
@@ -172,6 +175,11 @@ const Cart = () => {
             {cart.map((item) => {
               const pid = item.productId || item.id;
               const { amount: savings } = calculateSavings(item.mrp, item.price);
+                <div className="item-details">
+                  <h3 className="item-name">{item.name}</h3>
+                  <p className="item-category">{item.category}</p>
+                  <p className="item-price">₹{item.price.toFixed(2)}</p>
+                </div>
 
               return (
                 <div key={pid} className="cart-item-row">
@@ -240,6 +248,8 @@ const Cart = () => {
                       </div>
                     </div>
                   </div>
+                <div className="item-total">
+                  ₹{(item.price * item.quantity).toFixed(2)}
                 </div>
               );
             })}
@@ -339,6 +349,14 @@ const Cart = () => {
             <div className="price-row-item tax-subrow">
               <span>18% GST (CGST 9% + SGST 9%):</span>
               <span>{formatINR(tax)}</span>
+            <div className="summary-row">
+              <span>Subtotal ({cart.length} items)</span>
+              <span>₹{total.toFixed(2)}</span>
+            </div>
+
+            <div className="summary-row">
+              <span>Tax (10%)</span>
+              <span>₹{tax.toFixed(2)}</span>
             </div>
 
             <div className="price-row-item">
@@ -348,6 +366,7 @@ const Cart = () => {
                   <strong className="text-free-green">FREE Delivery</strong>
                 ) : (
                   formatINR(shipping)
+                  `₹${shipping.toFixed(2)}`
                 )}
               </span>
             </div>
@@ -368,6 +387,15 @@ const Cart = () => {
             {(mrpSavings + couponDiscount) > 0 && (
               <div className="total-savings-badge">
                 🎉 You will save {formatINR(mrpSavings + couponDiscount)} on this order!
+            <div className="summary-row total">
+              <span>Total</span>
+              <span>₹{grandTotal.toFixed(2)}</span>
+            </div>
+
+            {shipping > 0 && (
+              <div className="free-shipping-notice">
+                <span className="notice-icon">💡</span>
+                Add ₹{(50 - total).toFixed(2)} more for free shipping!
               </div>
             )}
 
@@ -375,6 +403,8 @@ const Cart = () => {
               type="button"
               onClick={handleProceedCheckout}
               className="btn btn-checkout-proceed"
+              onClick={handleCheckout}
+              className="btn btn-primary btn-block btn-lg"
             >
               Proceed to Indian Checkout →
             </button>
